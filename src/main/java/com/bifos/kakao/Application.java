@@ -1,20 +1,24 @@
 package com.bifos.kakao;
 
-import com.bifos.kakao.network.HttpClient;
+import com.bifos.kakao.network.KakaoClient;
+import com.bifos.kakao.network.model.BaseResponse;
+import com.bifos.kakao.network.model.StartModel;
 import com.google.gson.Gson;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.GsonBuilder;
 
 public class Application {
 
     public static void main(String[] args) {
-        HttpClient httpClient = new HttpClient();
+        run();
+    }
 
-        // test
-        Map<String, Object> body = new HashMap<>();
-        body.put("problem", "1");
-        String result = httpClient.(BASE_URL + "/start", headers, body);
-        System.out.println(result);
+    private static void run() {
+        // 카카오 클라이언트 초기화
+        Gson gson = new GsonBuilder().create();
+        KakaoClient kakaoClient = new KakaoClient(gson);
+
+        // start
+        BaseResponse<StartModel> startResponse = kakaoClient.start(1);
+        System.out.println(startResponse);
     }
 }

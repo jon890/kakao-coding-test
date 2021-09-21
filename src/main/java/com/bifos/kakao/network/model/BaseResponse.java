@@ -9,4 +9,12 @@ public class BaseResponse<T> {
         this.responseCode = responseCode;
         this.data = data;
     }
+
+    @Override
+    public String toString() {
+        return "BaseResponse{" +
+                "responseCode=" + responseCode +
+                ", data=" + data +
+                '}';
+    }
 }

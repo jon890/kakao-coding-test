@@ -8,7 +8,9 @@ import com.bifos.kakao.network.model.StartModel;
 
 public interface KakaoRestful {
 
-    @GET("/start")
-    @Headers("X-AUTH-TOKEN: 1ca30343d45d24c969d746a27f0373d2")
+    @GET("start")
+    @Headers({"X-AUTH-TOKEN: 1ca30343d45d24c969d746a27f0373d2",
+            "Content-Type: application/json",
+            "Accept-Charset: UTF-8"})
     BaseResponse<StartModel> start(@Query("problems") int problemId);
 }

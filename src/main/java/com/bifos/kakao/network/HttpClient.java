@@ -1,6 +1,7 @@
 package com.bifos.kakao.network;
 
 import com.bifos.kakao.network.model.BaseResponse;
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -12,11 +13,12 @@ import java.util.Map;
 
 public class HttpClient {
 
+    private final Gson gson;
+
     public enum RequestMethod {
         POST("POST"),
         GET("GET"),
-        PUT("PUT")
-        ;
+        PUT("PUT");
 
         String value;
 
@@ -25,29 +27,36 @@ public class HttpClient {
         }
     }
 
-    public HttpClient() {
+    public HttpClient(Gson gson) {
+        this.gson = gson;
     }
 
-    public BaseResponse<String, Exception> request(RequestMethod method,
-                                                   String urlString,
-                                                   Map<String, String> headers,
-                                                   Map<String, Object> body){
+    public <T> BaseResponse<T> request(RequestMethod method,
+                                       String urlString,
+                                       Map<String, String> headers,
+                                       Map<String, Object> body,
+                                       Class<T> tClass) {
+        if (method == null) {
+            System.out.println(getClass().toString() + " : Request Method 가 지정되지 않았습니다!");
+            return null;
+        }
+
         try {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             connection.setRequestMethod(method.value);
-//            connection.setRequestProperty("Content-Type", "application/json");
-//            connection.setRequestProperty("Accept-Charset", "UTF-8");
 
-            for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
-                connection.setRequestProperty(headerEntry.getKey(), headerEntry.getValue());
+            if (headers != null) {
+                for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+                    connection.setRequestProperty(headerEntry.getKey(), headerEntry.getValue());
+                }
             }
 
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(10000);
 
-            if (method == RequestMethod.POST) {
+            if (method == RequestMethod.POST && body != null) {
                 connection.setDoOutput(true);
                 DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
                 String bodyJson = gson.toJson(body);
@@ -68,7 +77,7 @@ public class HttpClient {
             bufferedReader.close();
             String data = stringBuffer.toString();
 
-            return new BaseResponse<>(responseCode, data);
+            return new BaseResponse<>(responseCode, gson.fromJson(data, tClass));
         } catch (IOException e) {
             // URL 형식이 잘못
             // Connection Open Error
